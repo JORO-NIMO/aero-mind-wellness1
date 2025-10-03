@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plane, RefreshCw, Wind } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WellnessScore } from "@/components/WellnessScore";
@@ -44,10 +45,28 @@ const generateHistory = (currentScore: number) => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState(generateMockData(75));
   const [history, setHistory] = useState(generateHistory(75));
   const [breathingOpen, setBreathingOpen] = useState(false);
+  const [userName, setUserName] = useState("Pilot");
   const { toast } = useToast();
+
+  // Check onboarding status on mount
+  useEffect(() => {
+    const isOnboarded = localStorage.getItem("aeromind_onboarded");
+    if (isOnboarded !== "true") {
+      navigate("/onboarding");
+      return;
+    }
+
+    // Load user data
+    const userData = localStorage.getItem("aeromind_user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserName(user.name || "Pilot");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     setHistory(generateHistory(data.score));
@@ -99,7 +118,7 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold">AeroMind</h1>
-                <p className="text-white/80 text-sm">Pilot Mental Health Assistant</p>
+                <p className="text-white/80 text-sm">Welcome back, {userName}!</p>
               </div>
             </div>
             
