@@ -6,12 +6,20 @@ interface HistoryChartProps {
 }
 
 export const HistoryChart = ({ history }: HistoryChartProps) => {
+  // Generate fatigue risk trend (simple moving average prediction)
+  const historyWithTrend = history.map((item, index) => ({
+    ...item,
+    fatigueRisk: index >= 2 
+      ? Math.max(0, Math.min(100, (history[index - 2].score + history[index - 1].score + item.score) / 3 - 5))
+      : item.score - 5,
+  }));
+
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Wellness History (Last 7 Days)</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-4">Wellness History & Fatigue Risk Trend</h3>
       
       <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={history} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+        <LineChart data={historyWithTrend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
           <XAxis 
             dataKey="date" 
@@ -40,18 +48,36 @@ export const HistoryChart = ({ history }: HistoryChartProps) => {
             strokeWidth={3}
             dot={{ fill: 'hsl(var(--primary))', r: 5 }}
             activeDot={{ r: 7 }}
+            name="Wellness Score"
+          />
+          <Line
+            type="monotone"
+            dataKey="fatigueRisk"
+            stroke="hsl(var(--warning))"
+            strokeWidth={2}
+            strokeDasharray="5 5"
+            dot={false}
+            name="Fatigue Risk Trend"
           />
         </LineChart>
       </ResponsiveContainer>
 
-      <div className="flex justify-center gap-4 mt-4 text-xs">
+      <div className="flex justify-center gap-6 mt-4 text-xs flex-wrap">
+        <div className="flex items-center gap-1">
+          <div className="w-8 h-0.5 bg-primary" />
+          <span className="text-muted-foreground">Wellness Score</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-8 h-0.5 bg-warning" style={{ borderTop: "2px dashed" }} />
+          <span className="text-muted-foreground">Fatigue Risk Trend</span>
+        </div>
         <div className="flex items-center gap-1">
           <div className="w-8 h-0.5 bg-success" />
-          <span className="text-muted-foreground">Healthy Threshold (70)</span>
+          <span className="text-muted-foreground">Healthy (70+)</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-8 h-0.5 bg-critical" />
-          <span className="text-muted-foreground">Critical Threshold (40)</span>
+          <span className="text-muted-foreground">Critical (40-)</span>
         </div>
       </div>
     </Card>

@@ -16,6 +16,7 @@ const Onboarding = () => {
     airline: "",
     role: "",
     restHours: "",
+    compliance: "",
     metrics: {
       heartRate: true,
       sleep: true,
@@ -33,7 +34,7 @@ const Onboarding = () => {
   }, [navigate]);
 
   const handleNext = () => {
-    if (step < 4) {
+    if (step < 5) {
       setStep(step + 1);
     } else {
       // Save to localStorage
@@ -46,7 +47,8 @@ const Onboarding = () => {
   const canProceed = () => {
     if (step === 1) return true;
     if (step === 2) return formData.name && formData.airline && formData.role && formData.restHours;
-    if (step === 3) return Object.values(formData.metrics).some(v => v);
+    if (step === 3) return formData.compliance;
+    if (step === 4) return Object.values(formData.metrics).some(v => v);
     return true;
   };
 
@@ -55,7 +57,7 @@ const Onboarding = () => {
       <Card className="w-full max-w-2xl p-8">
         {/* Progress Steps */}
         <div className="flex items-center justify-between mb-8">
-          {[1, 2, 3, 4].map((s) => (
+          {[1, 2, 3, 4, 5].map((s) => (
             <div key={s} className="flex items-center">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
@@ -66,7 +68,7 @@ const Onboarding = () => {
               >
                 {step > s ? <Check className="w-5 h-5" /> : s}
               </div>
-              {s < 4 && (
+              {s < 5 && (
                 <div
                   className={`h-1 w-12 mx-2 ${
                     step > s ? "bg-primary" : "bg-secondary"
@@ -150,8 +152,50 @@ const Onboarding = () => {
           </div>
         )}
 
-        {/* Step 3: Metrics Selection */}
+        {/* Step 3: Compliance Selection */}
         {step === 3 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Regulatory Compliance</h2>
+              <p className="text-muted-foreground">Select your airline's regulatory authority.</p>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { key: "IATA", label: "IATA", desc: "International Air Transport Association Standards" },
+                { key: "FAA", label: "FAA", desc: "Federal Aviation Administration (US)" },
+                { key: "EASA", label: "EASA", desc: "European Union Aviation Safety Agency" },
+              ].map((compliance) => (
+                <Card 
+                  key={compliance.key} 
+                  className={`p-4 cursor-pointer hover:shadow-md transition-all ${
+                    formData.compliance === compliance.key ? "border-primary bg-primary/5" : ""
+                  }`}
+                  onClick={() => setFormData({ ...formData, compliance: compliance.key })}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      formData.compliance === compliance.key 
+                        ? "border-primary bg-primary" 
+                        : "border-muted-foreground"
+                    }`}>
+                      {formData.compliance === compliance.key && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{compliance.label}</h3>
+                      <p className="text-sm text-muted-foreground">{compliance.desc}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Metrics Selection */}
+        {step === 4 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">Choose metrics to track</h2>
@@ -187,8 +231,8 @@ const Onboarding = () => {
           </div>
         )}
 
-        {/* Step 4: Confirmation */}
-        {step === 4 && (
+        {/* Step 5: Confirmation */}
+        {step === 5 && (
           <div className="text-center space-y-6">
             <div className="bg-success/10 text-success p-6 rounded-lg inline-block">
               <Check className="w-16 h-16" />
@@ -201,6 +245,7 @@ const Onboarding = () => {
               <p className="text-sm text-muted-foreground mb-2">Your profile:</p>
               <p className="text-foreground"><strong>Airline:</strong> {formData.airline}</p>
               <p className="text-foreground"><strong>Role:</strong> {formData.role}</p>
+              <p className="text-foreground"><strong>Compliance:</strong> {formData.compliance}</p>
               <p className="text-foreground"><strong>Rest Hours:</strong> {formData.restHours} hrs/night</p>
             </div>
           </div>
@@ -216,7 +261,7 @@ const Onboarding = () => {
             Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed()}>
-            {step === 4 ? "Continue to Wearable Setup" : "Next"}
+            {step === 5 ? "Continue to Wearable Setup" : "Next"}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

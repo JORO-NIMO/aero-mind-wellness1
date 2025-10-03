@@ -9,6 +9,8 @@ import { AlertBanner } from "@/components/AlertBanner";
 import { BreathingExercise } from "@/components/BreathingExercise";
 import { HistoryChart } from "@/components/HistoryChart";
 import { DemoControls } from "@/components/DemoControls";
+import { AIInsights } from "@/components/AIInsights";
+import { GamificationBadges } from "@/components/GamificationBadges";
 import { useToast } from "@/hooks/use-toast";
 
 const generateMockData = (baseScore?: number) => {
@@ -166,6 +168,16 @@ const Index = () => {
           sleepHours={data.sleepHours}
           steps={data.steps}
         />
+
+        {/* AI Insights */}
+        <AIInsights 
+          heartRate={data.heartRate}
+          sleepHours={data.sleepHours}
+          score={data.score}
+        />
+
+        {/* Gamification Badges */}
+        <GamificationBadges history={history} score={data.score} />
 
         {/* History Chart */}
         <HistoryChart history={history} />
