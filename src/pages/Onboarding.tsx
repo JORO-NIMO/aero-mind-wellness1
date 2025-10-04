@@ -40,7 +40,8 @@ const Onboarding = () => {
       // Save to localStorage
       localStorage.setItem("aeromind_user", JSON.stringify(formData));
       localStorage.setItem("aeromind_onboarded", "true");
-      navigate("/wearable-setup");
+      // Navigate directly to dashboard - wearable can be connected later
+      navigate("/");
     }
   };
 
@@ -261,7 +262,7 @@ const Onboarding = () => {
             Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed()}>
-            {step === 5 ? "Continue to Wearable Setup" : "Next"}
+            {step === 5 ? "Complete Setup" : "Next"}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

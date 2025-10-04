@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import WearableSetup from "./pages/WearableSetup";
+import Settings from "./pages/Settings";
+// import Resources from "./pages/Resources";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,8 @@ const App = () => (
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/wearable-setup" element={<WearableSetup />} />
+          <Route path="/settings" element={<Settings />} />
+          {/* <Route path="/resources" element={<Resources />} /> */}
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
