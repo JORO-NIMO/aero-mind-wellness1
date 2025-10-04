@@ -14,9 +14,6 @@ export const DemoControls = ({ onSetHealthy, onSetStressed, onSetCritical }: Dem
       <div className="flex items-center gap-2 mb-4">
         <Zap className="w-5 h-5 text-primary" />
         <h3 className="text-lg font-semibold text-foreground">Demo Controls</h3>
-        <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-          For Presentation
-        </span>
       </div>
       
       <p className="text-sm text-muted-foreground mb-4">
