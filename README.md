@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# Aero Mind Wellness
 
-## Project info
+A lightweight web app for tracking and improving mental wellness. Includes user settings, wearable integration, and a dashboard page with vetted mental health links.
 
-**URL**: https://lovable.dev/projects/1ef97e7f-85ff-42b3-937f-c484031ae254
+## Quick start (Windows)
 
-## How can I edit this code?
+Prerequisites
+- Node.js 18+ (recommended)
+- npm (bundled with Node)
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/1ef97e7f-85ff-42b3-937f-c484031ae254) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+Steps
+```powershell
+# 1. Clone the repo
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Enter the project folder
+cd aero-mind-wellness
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Start the dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open the app in your browser at:
+http://localhost:5173
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+(Vite default dev port is 5173; if your project uses a different port, follow the terminal output.)
 
-**Use GitHub Codespaces**
+## Project structure (important files)
+- src/
+  - pages/
+    - Settings.tsx          — settings and wearable integration UI
+    - Resources.tsx         — mental health resources page (add if needed)
+  - components/             — shared UI components (Sidebar, Avatar, etc.)
+  - App.tsx / main.tsx      — router and app bootstrap
+- public/                   — static assets
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Adding the Resources page (example)
+1. Create src/pages/Resources.tsx (React + TypeScript).
+2. Add a route in your router (App.tsx):
+```tsx
+// ...existing code...
+import Resources from "@/pages/Resources";
 
-## What technologies are used for this project?
+<Routes>
+  {/* ...other routes */}
+  <Route path="/resources" element={<Resources />} />
+</Routes>
+```
+3. Add a link in your Sidebar or navigation to /resources.
 
-This project is built with:
+## Available scripts
+- npm run dev        — start dev server (hot reload)
+- npm run build      — production build
+- npm run preview    — serve built app locally
 
+## Tech stack
 - Vite
-- TypeScript
-- React
-- shadcn-ui
+- React + TypeScript
 - Tailwind CSS
+- shadcn/ui (component primitives)
+- lucide-react (icons)
 
-## How can I deploy this project?
+## Contributing
+1. Create a feature branch: git checkout -b feat/your-feature
+2. Commit changes with clear messages
+3. Open a pull request for review
 
-Simply open [Lovable](https://lovable.dev/projects/1ef97e7f-85ff-42b3-937f-c484031ae254) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## License
+Add your chosen license file (e.g., LICENSE) and update this section.
