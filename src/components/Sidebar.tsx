@@ -12,7 +12,8 @@ import {
   Activity,
   Heart,
   Moon,
-  Footprints
+  Footprints,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,6 +37,12 @@ export const Sidebar = ({ userName, wearableConnected, wellnessScore, profilePho
       label: "Dashboard",
       path: "/",
       active: location.pathname === "/"
+    },
+    {
+      icon: BookOpen,
+      label: "Resources",
+      path: "/resources",
+      active: location.pathname === "/resources"
     },
     {
       icon: Settings,

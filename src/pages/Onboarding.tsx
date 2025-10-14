@@ -109,7 +109,7 @@ const Onboarding = () => {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  placeholder="John Smith"
+                  placeholder="Mike Makula"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -119,7 +119,7 @@ const Onboarding = () => {
                 <Label htmlFor="airline">Airline</Label>
                 <Input
                   id="airline"
-                  placeholder="e.g., United Airlines"
+                  placeholder="e.g., Uganda Airlines"
                   value={formData.airline}
                   onChange={(e) => setFormData({ ...formData, airline: e.target.value })}
                 />
@@ -163,9 +163,9 @@ const Onboarding = () => {
 
             <div className="space-y-3">
               {[
-                { key: "IATA", label: "IATA", desc: "International Air Transport Association Standards" },
-                { key: "FAA", label: "FAA", desc: "Federal Aviation Administration (US)" },
-                { key: "EASA", label: "EASA", desc: "European Union Aviation Safety Agency" },
+                { key: "UCAA", label: "UCAA", desc: "Uganda Civil Aviation Authority" },
+                { key: "KCAA", label: "KCAA", desc: "Kenya Civil Aviation Authority" },
+                { key: "TCAA", label: "TCAA", desc: "Tanzania Civil Aviation Authority" },
               ].map((compliance) => (
                 <Card 
                   key={compliance.key} 
