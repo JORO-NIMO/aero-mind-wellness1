@@ -4,44 +4,29 @@ import { Watch, Loader2, Check, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useWearable } from "@/contexts/WearableContext";
 
 const WearableSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [connecting, setConnecting] = useState(false);
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    // Check if wearable already connected
-    const isConnected = localStorage.getItem("aeromind_wearable_connected");
-    if (isConnected === "true") {
-      setConnected(true);
-    }
-  }, []);
+  const { isConnected: connected, isConnecting: connecting, connectWearable, disconnectWearable } = useWearable();
 
   const handleConnect = () => {
-    setConnecting(true);
+    connectWearable();
+    
+    toast({
+      title: "Wearable Connected!",
+      description: "Successfully connected to your smartwatch.",
+    });
 
-    // Simulate connection delay
+    // Navigate to dashboard after connection is complete
     setTimeout(() => {
-      setConnecting(false);
-      setConnected(true);
-      localStorage.setItem("aeromind_wearable_connected", "true");
-      
-      toast({
-        title: "Wearable Connected!",
-        description: "Successfully connected to your smartwatch.",
-      });
-
-      // Navigate to dashboard after short delay
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    }, 2500);
+      navigate("/");
+    }, 1500);
   };
 
   const handleSkip = () => {
-    localStorage.setItem("aeromind_wearable_connected", "false");
+    disconnectWearable();
     navigate("/");
   };
 

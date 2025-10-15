@@ -14,6 +14,7 @@ import { AIInsights } from "@/components/AIInsights";
 import { GamificationBadges } from "@/components/GamificationBadges";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
+import { useWearable } from "@/contexts/WearableContext";
 
 const generateMockData = (baseScore?: number) => {
   const score = baseScore ?? Math.floor(Math.random() * 100);
@@ -54,10 +55,9 @@ const Index = () => {
   const [history, setHistory] = useState(generateHistory(75));
   const [breathingOpen, setBreathingOpen] = useState(false);
   const [userName, setUserName] = useState("Pilot");
-  const [wearableConnected, setWearableConnected] = useState(false);
-  const [connectingWearable, setConnectingWearable] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const { toast } = useToast();
+  const { isConnected: wearableConnected, isConnecting: connectingWearable, connectWearable } = useWearable();
 
   // Check onboarding status on mount
   useEffect(() => {
@@ -73,10 +73,6 @@ const Index = () => {
       const user = JSON.parse(userData);
       setUserName(user.name || "Pilot");
     }
-
-    // Check wearable connection status
-    const isWearableConnected = localStorage.getItem("aeromind_wearable_connected");
-    setWearableConnected(isWearableConnected === "true");
 
     // Load profile photo
     const savedPhoto = localStorage.getItem("aeromind_profile_photo");
@@ -124,19 +120,12 @@ const Index = () => {
   };
 
   const handleConnectWearable = () => {
-    setConnectingWearable(true);
-
-    // Simulate connection delay
-    setTimeout(() => {
-      setConnectingWearable(false);
-      setWearableConnected(true);
-      localStorage.setItem("aeromind_wearable_connected", "true");
-      
-      toast({
-        title: "Wearable Connected!",
-        description: "Successfully connected to your smartwatch. Data is now being tracked.",
-      });
-    }, 2500);
+    connectWearable();
+    
+    toast({
+      title: "Wearable Connected!",
+      description: "Successfully connected to your smartwatch. Data is now being tracked.",
+    });
   };
 
   return (
