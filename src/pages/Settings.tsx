@@ -11,6 +11,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useWearable } from "@/contexts/WearableContext";
 
 const Settings = () => {
   const [notifications, setNotifications] = useState(true);
@@ -18,8 +19,6 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isConnectingWearable, setIsConnectingWearable] = useState(false);
-  const [wearableConnectionStatus, setWearableConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [availableDevices, setAvailableDevices] = useState([
     { id: '1', name: 'Apple Watch Series 9', type: 'smartwatch', battery: 85 },
     { id: '2', name: 'Fitbit Charge 5', type: 'fitness-tracker', battery: 72 },
@@ -29,10 +28,11 @@ const Settings = () => {
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  
+  const { isConnected: wearableConnected, isConnecting: isConnectingWearable, connectWearable, disconnectWearable } = useWearable();
 
   // Mock user data - in a real app this would come from context/API
   const userName = "John Pilot";
-  const wearableConnected = wearableConnectionStatus === 'connected';
   const wellnessScore = 85;
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,19 +89,12 @@ const Settings = () => {
   };
 
   const handleWearableConnection = (deviceId: string) => {
-    setIsConnectingWearable(true);
-    setWearableConnectionStatus('connecting');
-    
-    // Simulate connection process
-    setTimeout(() => {
-      setIsConnectingWearable(false);
-      setWearableConnectionStatus('connected');
-      alert('Wearable device connected successfully!');
-    }, 2000);
+    connectWearable();
+    alert('Wearable device connected successfully!');
   };
 
   const handleWearableDisconnect = () => {
-    setWearableConnectionStatus('disconnected');
+    disconnectWearable();
     alert('Wearable device disconnected');
   };
 
@@ -180,7 +173,7 @@ const Settings = () => {
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Available 24/7:</strong> Medical support team</p>
                 <p><strong>Response Time:</strong> 5 minutes for emergencies</p>
-                <p><strong>Languages:</strong> English, Spanish, French</p>
+                <p><strong>Languages:</strong> English, Luganda, Kiswahili</p>
               </div>
             </CardContent>
           </Card>
@@ -201,13 +194,13 @@ const Settings = () => {
                 <div>
                   <Label>Connection Status</Label>
                   <p className="text-sm text-gray-500">
-                    {wearableConnectionStatus === 'connected' ? 'Device connected and syncing' : 
-                     wearableConnectionStatus === 'connecting' ? 'Connecting to device...' : 
+                    {wearableConnected ? 'Device connected and syncing' : 
+                     isConnectingWearable ? 'Connecting to device...' : 
                      'No device connected'}
                   </p>
                 </div>
                 <Badge variant={wearableConnected ? "default" : "secondary"}>
-                  {wearableConnectionStatus === 'connecting' ? 'Connecting...' :
+                  {isConnectingWearable ? 'Connecting...' :
                    wearableConnected ? "Connected" : "Disconnected"}
                 </Badge>
               </div>
