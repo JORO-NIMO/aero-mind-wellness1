@@ -1,6 +1,6 @@
 # Aero Mind Wellness
 
-A lightweight web app for tracking and improving mental wellness. Includes user settings, wearable integration, and a dashboard page with vetted mental health links.
+Pilot wellness demo web app built with Vite + React + Tailwind. Includes demo authentication (login/sign-up with company email, worker ID, phone, DOB), onboarding, dashboard with mock wearable data, AI-powered insights (what‑if simulation), settings bound to the signed-in profile, and a resources page. All demo data is stored locally in the browser.
 
 ## Quick start (Windows)
 
@@ -11,10 +11,10 @@ Prerequisites
 Steps
 ```powershell
 # 1. Clone the repo
-git clone <YOUR_GIT_URL>
+git clone https://github.com/JORO-NIMO/aero-mind-wellness1.git
 
 # 2. Enter the project folder
-cd aero-mind-wellness
+cd aero-mind-wellness1
 
 # 3. Install dependencies
 npm install
@@ -28,39 +28,65 @@ http://localhost:5173
 
 (Vite default dev port is 5173; if your project uses a different port, follow the terminal output.)
 
-## Project structure (important files)
-- src/
-  - pages/
-    - Settings.tsx          — settings and wearable integration UI
-    - Resources.tsx         — mental health resources page (add if needed)
-  - components/             — shared UI components (Sidebar, Avatar, etc.)
-  - App.tsx / main.tsx      — router and app bootstrap
-- public/                   — static assets
+## Features (Demo mode)
+- **[Auth demo]**
+  - `Login` and `Signup` flows using localStorage. Signup collects company email, worker ID, phone (E.164), and DOB.
+  - Dual OTP verification is simulated by showing OTPs on screen.
+  - Allowed email domain defaults to `airlinecompany.com` (changeable).
+- **[Onboarding]**
+  - Stepper to collect name, airline, role, compliance authority, and metrics to track.
+- **[Dashboard]**
+  - Wellness score, mock wearable metrics, mood check‑in, history chart.
+  - AI Insights demo container with What‑if mode (sliders for HR/Sleep/Score), presets, and Regenerate.
+  - Gamification badges and demo controls to set healthy/stressed/critical states.
+- **[Settings]**
+  - Reads and updates name/email from `localStorage` profile created by login/signup.
+  - Age placeholder derived from DOB (if provided). Photo upload is in‑memory for demo.
+- **[Resources]**
+  - Curated mental health content.
+- **[Wearable]**
+  - Demo wearable context and connection UI.
 
-## Adding the Resources page (example)
-1. Create src/pages/Resources.tsx (React + TypeScript).
-2. Add a route in your router (App.tsx):
-```tsx
-// ...existing code...
-import Resources from "@/pages/Resources";
+## Routes
+- `/login` — demo login
+- `/signup` — demo sign‑up with OTPs (on‑screen)
+- `/onboarding` — guided setup (requires login)
+- `/` — dashboard (requires login + onboarding)
+- `/settings` — profile, privacy, devices
+- `/resources` — content/resources
+- `/wearable-setup` — wearable setup demo
+- `*` — not found
 
-<Routes>
-  {/* ...other routes */}
-  <Route path="/resources" element={<Resources />} />
-</Routes>
+## LocalStorage keys (demo)
+- `aeromind_user` — profile fields (name, email, phone, workerId, dob, verification flags)
+- `aeromind_logged_in` — "true" when logged in
+- `aeromind_onboarded` — "true" after onboarding
+- `aeromind_profile_photo` — optionally used for profile photo (not persisted by default in Settings)
+
+To reset the demo quickly, clear these keys in DevTools or run in console:
+```js
+localStorage.removeItem('aeromind_user');
+localStorage.removeItem('aeromind_logged_in');
+localStorage.removeItem('aeromind_onboarded');
+localStorage.removeItem('aeromind_profile_photo');
 ```
-3. Add a link in your Sidebar or navigation to /resources.
+
+## Configuration
+- **Allowed email domain** for signup: update `allowedDomain` in `src/pages/Signup.tsx`.
+- This project is fully client‑side in demo mode; there is no backend.
 
 ## Available scripts
 - npm run dev        — start dev server (hot reload)
 - npm run build      — production build
 - npm run preview    — serve built app locally
+- npm run lint       — run ESLint
 
 ## Tech stack
-- Vite
-- React + TypeScript
-- Tailwind CSS
-- shadcn/ui (component primitives)
+- Vite (React + SWC)
+- React 18 + TypeScript
+- Tailwind CSS + shadcn/ui (Radix UI)
+- React Router v6
+- TanStack Query (for future data needs)
 - lucide-react (icons)
 
 ## Contributing
