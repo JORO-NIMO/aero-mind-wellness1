@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ import {
 import { Sidebar } from "@/components/Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BreathingExercise } from "@/components/BreathingExercise";
 
 const MentalHealthResources = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +47,9 @@ const MentalHealthResources = () => {
   const [messageText, setMessageText] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
+  const [breathingOpen, setBreathingOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const gratitudeRef = useRef<HTMLTextAreaElement | null>(null);
   
   const { toast } = useToast();
   
@@ -390,6 +394,46 @@ const MentalHealthResources = () => {
     }
   ];
 
+  // Sample media sources (demo only)
+  const sampleAudioByTitle: Record<string, string> = {
+    "Breathing Exercises": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "Progressive Muscle Relaxation": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "Mindfulness Meditation": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+  };
+  const sampleVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+
+  const startToolSession = () => {
+    if (!selectedTool) return;
+    if (selectedTool.title === "Breathing Exercises") {
+      setIsToolOpen(false);
+      setBreathingOpen(true);
+      return;
+    }
+    if (selectedTool.type === "audio" && audioRef.current) {
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  const downloadGratitudeTemplate = () => {
+    const content = `Gratitude Journal Template\n\nDate: ____________\n\n1) ________________________________\n2) ________________________________\n3) ________________________________\n\nWhy I'm grateful: ________________________________\n`;
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "gratitude-journal-template.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Template Downloaded", description: "Gratitude journal template saved." });
+  };
+
+  const saveGratitudeEntry = () => {
+    const text = gratitudeRef.current?.value?.trim();
+    if (text) {
+      toast({ title: "Entry Saved", description: "Your gratitude entry has been saved for today." });
+      setIsToolOpen(false);
+    }
+  };
+
   const filteredResources = (resources: any[]) => {
     if (!searchQuery) return resources;
     return resources.filter(resource => 
@@ -729,8 +773,37 @@ const MentalHealthResources = () => {
                 </div>
               )}
             </div>
+            {selectedTool?.type === 'audio' && (
+              <div className="space-y-2">
+                <audio
+                  ref={audioRef}
+                  controls
+                  src={sampleAudioByTitle[selectedTool?.title]}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500">Demo audio guidance for this session.</p>
+              </div>
+            )}
+
+            {selectedTool?.title === 'Gratitude Journal' && (
+              <div className="space-y-2">
+                <textarea
+                  ref={gratitudeRef}
+                  className="w-full p-3 border rounded-lg resize-none"
+                  rows={4}
+                  placeholder="Write today's 3 gratitude entries..."
+                />
+                <div className="flex space-x-2">
+                  <Button variant="outline" onClick={downloadGratitudeTemplate}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Template
+                  </Button>
+                  <Button onClick={saveGratitudeEntry}>Save Entry</Button>
+                </div>
+              </div>
+            )}
             <div className="flex space-x-2">
-              <Button className="flex-1">
+              <Button className="flex-1" onClick={startToolSession}>
                 <Play className="h-4 w-4 mr-2" />
                 Start Session
               </Button>
@@ -844,25 +917,43 @@ const MentalHealthResources = () => {
                   "Explore strategies for maintaining work-life balance and mental wellness despite unpredictable work schedules."}
               </p>
             </div>
+            {selectedContent?.type === 'video' && (
+              <video controls className="w-full rounded-lg" src={sampleVideoUrl} poster="/placeholder.svg" />
+            )}
+            {selectedContent?.type === 'podcast' && (
+              <audio controls className="w-full" src={sampleAudioByTitle["Mindfulness Meditation"]} />
+            )}
             <div className="flex space-x-2">
-              <Button className="flex-1">
-                {selectedContent?.type === 'video' ? (
-                  <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Watch Video
-                  </>
-                ) : selectedContent?.type === 'podcast' ? (
-                  <>
-                    <Headphones className="h-4 w-4 mr-2" />
-                    Listen Now
-                  </>
-                ) : (
-                  <>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Read Article
-                  </>
-                )}
-              </Button>
+              {selectedContent?.type === 'article' ? (
+                <Button className="flex-1" onClick={() => {
+                  const blob = new Blob([
+                    `${selectedContent?.title}\n\nThis is a demo article placeholder for offline reading.`
+                  ], { type: "text/plain;charset=utf-8" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${selectedContent?.title || 'article'}.txt`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Article
+                </Button>
+              ) : (
+                <Button className="flex-1">
+                  {selectedContent?.type === 'video' ? (
+                    <>
+                      <Play className="h-4 w-4 mr-2" />
+                      Watch Video
+                    </>
+                  ) : (
+                    <>
+                      <Headphones className="h-4 w-4 mr-2" />
+                      Listen Now
+                    </>
+                  )}
+                </Button>
+              )}
               <Button variant="outline" onClick={() => setIsContentOpen(false)}>
                 Close
               </Button>
@@ -870,6 +961,9 @@ const MentalHealthResources = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Breathing Exercise Modal (interactive session) */}
+      <BreathingExercise isOpen={breathingOpen} onClose={() => setBreathingOpen(false)} />
 
       {/* Support Group Join Modal */}
       <Dialog open={isGroupOpen} onOpenChange={setIsGroupOpen}>

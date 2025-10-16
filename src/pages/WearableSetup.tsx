@@ -11,6 +11,13 @@ const WearableSetup = () => {
   const { toast } = useToast();
   const { isConnected: connected, isConnecting: connecting, connectWearable, disconnectWearable } = useWearable();
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
+
   const handleConnect = () => {
     connectWearable();
     
@@ -32,7 +39,7 @@ const WearableSetup = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg p-8">
+      <Card className={`w-full max-w-lg p-8 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
         <div className="text-center space-y-6">
           {/* Icon */}
           <div className={`mx-auto inline-block p-6 rounded-full transition-colors ${

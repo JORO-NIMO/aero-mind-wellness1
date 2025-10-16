@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -28,6 +28,7 @@ const Settings = () => {
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [mounted, setMounted] = useState(false);
   
   const { isConnected: wearableConnected, isConnecting: isConnectingWearable, connectWearable, disconnectWearable } = useWearable();
 
@@ -98,6 +99,11 @@ const Settings = () => {
     alert('Wearable device disconnected');
   };
 
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Sidebar 
@@ -107,7 +113,7 @@ const Settings = () => {
         profilePhoto={profilePhoto}
       />
       <div className="lg:ml-80 p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className={`max-w-4xl mx-auto space-y-6 transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}> 
         {/* Header */}
         <div className="flex items-center space-x-3 mb-8">
           <div className="p-2 bg-blue-100 rounded-lg">
