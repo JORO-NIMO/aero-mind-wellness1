@@ -11,7 +11,8 @@ import WearableSetup from "./pages/WearableSetup";
 import Settings from "./pages/Settings";
 import Resources from "./pages/Resources";
 // import Resources from "./pages/Resources";
-import Login from "./pages/Login";
+ import Login from "./pages/Login";
+ import Signup from "./pages/Signup";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/wearable-setup" element={<WearableSetup />} />
             <Route path="/settings" element={<Settings />} />

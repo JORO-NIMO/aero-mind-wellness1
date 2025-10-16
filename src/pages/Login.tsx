@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,6 +73,12 @@ const Login = () => {
               Continue
             </Button>
           </form>
+
+          <div>
+            <Button variant="link" asChild>
+              <Link to="/signup">New pilot? Sign up</Link>
+            </Button>
+          </div>
 
           <p className="text-xs text-muted-foreground">
             Your details are stored locally on this device for demo purposes.
