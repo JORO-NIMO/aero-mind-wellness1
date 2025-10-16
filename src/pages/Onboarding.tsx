@@ -27,6 +27,13 @@ const Onboarding = () => {
   });
 
   useEffect(() => {
+    // Require login first
+    const isLoggedIn = localStorage.getItem("aeromind_logged_in");
+    if (isLoggedIn !== "true") {
+      navigate("/login");
+      return;
+    }
+
     // Check if already onboarded
     const isOnboarded = localStorage.getItem("aeromind_onboarded");
     if (isOnboarded === "true") {
@@ -44,7 +51,9 @@ const Onboarding = () => {
       setStep(step + 1);
     } else {
       // Save to localStorage
-      localStorage.setItem("aeromind_user", JSON.stringify(formData));
+      const existing = localStorage.getItem("aeromind_user");
+      const prev = existing ? JSON.parse(existing) : {};
+      localStorage.setItem("aeromind_user", JSON.stringify({ ...prev, ...formData }));
       localStorage.setItem("aeromind_onboarded", "true");
       // Navigate directly to dashboard - wearable can be connected later
       navigate("/");

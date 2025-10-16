@@ -62,6 +62,12 @@ const Index = () => {
 
   // Check onboarding status on mount
   useEffect(() => {
+    const isLoggedIn = localStorage.getItem("aeromind_logged_in");
+    if (isLoggedIn !== "true") {
+      navigate("/login");
+      return;
+    }
+
     const isOnboarded = localStorage.getItem("aeromind_onboarded");
     if (isOnboarded !== "true") {
       navigate("/onboarding");

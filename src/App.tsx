@@ -11,6 +11,7 @@ import WearableSetup from "./pages/WearableSetup";
 import Settings from "./pages/Settings";
 import Resources from "./pages/Resources";
 // import Resources from "./pages/Resources";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/wearable-setup" element={<WearableSetup />} />
             <Route path="/settings" element={<Settings />} />
