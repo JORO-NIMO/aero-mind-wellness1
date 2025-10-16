@@ -56,6 +56,7 @@ const Index = () => {
   const [breathingOpen, setBreathingOpen] = useState(false);
   const [userName, setUserName] = useState("Pilot");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { toast } = useToast();
   const { isConnected: wearableConnected, isConnecting: connectingWearable, connectWearable } = useWearable();
 
@@ -84,6 +85,11 @@ const Index = () => {
   useEffect(() => {
     setHistory(generateHistory(data.score));
   }, [data.score]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
   const refreshData = () => {
     const newData = generateMockData();
@@ -178,12 +184,12 @@ const Index = () => {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">
+        <main className={`container mx-auto px-6 py-8 space-y-8 max-w-7xl transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
         {/* Alert Banner */}
         <AlertBanner score={data.score} />
 
         {/* Wellness Score & Mood Check-in */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 transform transition-all duration-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
           <div className="lg:col-span-2">
             <WellnessScore score={data.score} />
           </div>
@@ -200,7 +206,7 @@ const Index = () => {
             steps={data.steps}
           />
         ) : (
-          <Card className="p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <Card className={`p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 transition-all duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
             <div className="space-y-4">
               <div className="bg-primary/20 p-4 rounded-full inline-block">
                 <Watch className="w-12 h-12 text-primary" />
@@ -225,7 +231,7 @@ const Index = () => {
                 <Button
                   onClick={handleConnectWearable}
                   size="lg"
-                  className="bg-gradient-primary hover:opacity-90"
+                  className="bg-gradient-primary hover:opacity-90 active:scale-[0.99] transition-transform"
                 >
                   <Watch className="w-4 h-4 mr-2" />
                   Connect Wearable

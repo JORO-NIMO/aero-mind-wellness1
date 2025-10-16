@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const Onboarding = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     airline: "",
@@ -32,6 +33,11 @@ const Onboarding = () => {
       navigate("/");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleNext = () => {
     if (step < 5) {
@@ -55,7 +61,7 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-8">
+      <Card className={`w-full max-w-2xl p-8 transition-all duration-500 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
         {/* Progress Steps */}
         <div className="flex items-center justify-between mb-8">
           {[1, 2, 3, 4, 5].map((s) => (
