@@ -13,7 +13,8 @@ import {
   Heart,
   Moon,
   Footprints,
-  BookOpen
+  BookOpen,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -202,12 +203,29 @@ export const Sidebar = ({ userName, wearableConnected, wellnessScore, profilePho
                 size="sm"
                 className="w-full justify-start"
                 onClick={() => {
-                  // In a real app, this would open a contact modal or call
                   alert("Contacting medical personnel...");
                 }}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Contact Medical
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem("aeromind_user");
+                    localStorage.removeItem("aeromind_logged_in");
+                    localStorage.removeItem("aeromind_onboarded");
+                    localStorage.removeItem("aeromind_profile_photo");
+                  } catch {}
+                  navigate("/login");
+                  setIsOpen(false);
+                }}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
               </Button>
             </div>
           </div>
