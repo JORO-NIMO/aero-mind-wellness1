@@ -12,8 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useWearable } from "@/contexts/WearableContext";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
   const [dataSharing, setDataSharing] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -33,7 +37,8 @@ const Settings = () => {
   const { isConnected: wearableConnected, isConnecting: isConnectingWearable, connectWearable, disconnectWearable } = useWearable();
 
   // Mock user data - in a real app this would come from context/API
-  const userName = "John Pilot";
+  const [profile, setProfile] = useState({ name: "", email: "", dob: "", phone: "", workerId: "" });
+  const displayName = profile.name || (profile.email ? profile.email.split("@")[0] : "Pilot");
   const wellnessScore = 85;
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +104,46 @@ const Settings = () => {
     alert('Wearable device disconnected');
   };
 
+  const handleUpdateProfile = () => {
+    const existing = localStorage.getItem("aeromind_user");
+    const prev = existing ? JSON.parse(existing) : {};
+    const updated = { ...prev, name: profile.name, email: profile.email };
+    localStorage.setItem("aeromind_user", JSON.stringify(updated));
+    toast({ title: "Profile updated" });
+  };
+
+  const computeAge = (v: string) => {
+    if (!v) return "";
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return "";
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+    return String(age);
+  };
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("aeromind_logged_in");
+    if (isLoggedIn !== "true") {
+      navigate("/login");
+      return;
+    }
+    const s = localStorage.getItem("aeromind_user");
+    if (s) {
+      try {
+        const u = JSON.parse(s);
+        setProfile({
+          name: u.name || "",
+          email: u.email || "",
+          dob: u.dob || "",
+          phone: u.phone || "",
+          workerId: u.workerId || "",
+        });
+      } catch {}
+    }
+  }, [navigate]);
+
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(t);
@@ -107,7 +152,7 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Sidebar 
-        userName={userName}
+        userName={displayName}
         wearableConnected={wearableConnected}
         wellnessScore={wellnessScore}
         profilePhoto={profilePhoto}
@@ -327,17 +372,28 @@ const Settings = () => {
               <Separator />
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" placeholder="Enter your full name" defaultValue={userName} />
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  value={profile.name}
+                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={profile.email}
+                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="age">Age</Label>
-                <Input id="age" type="number" placeholder="Enter your age" />
+                <Input id="age" type="number" placeholder={computeAge(profile.dob) ? `${computeAge(profile.dob)}` : "Enter your age"} />
               </div>
-              <Button className="w-full">Update Profile</Button>
+              <Button className="w-full" onClick={handleUpdateProfile}>Update Profile</Button>
             </CardContent>
           </Card>
 
@@ -505,7 +561,7 @@ const Settings = () => {
         {/* Save Changes Button */}
         <div className="flex justify-end space-x-4 pt-6">
           <Button variant="outline">Cancel</Button>
-          <Button>Save Changes</Button>
+          <Button onClick={handleUpdateProfile}>Save Changes</Button>
         </div>
         </div>
       </div>
