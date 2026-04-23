@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WearableProvider } from "@/contexts/WearableContext";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import WearableSetup from "./pages/WearableSetup";
@@ -24,13 +25,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/wearable-setup" element={<WearableSetup />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/resources" element={<Resources />} />
-            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

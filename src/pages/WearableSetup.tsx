@@ -28,13 +28,13 @@ const WearableSetup = () => {
 
     // Navigate to dashboard after connection is complete
     setTimeout(() => {
-      navigate("/");
+      navigate("/dashboard");
     }, 1500);
   };
 
   const handleSkip = () => {
     disconnectWearable();
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

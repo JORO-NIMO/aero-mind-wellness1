@@ -22,7 +22,7 @@ const Login = () => {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("aeromind_logged_in");
     if (isLoggedIn === "true") {
-      navigate("/");
+      navigate("/dashboard");
       return;
     }
     const t = setTimeout(() => setMounted(true), 0);

@@ -39,10 +39,11 @@ Open:
 Note: Vite defaults to port 5173. Follow terminal output if another port is used.
 
 ## Routes
+- `/` - public landing page with AeroMind story and product journey
 - `/login` - demo login
 - `/signup` - demo sign-up with on-screen OTP simulation
 - `/onboarding` - guided setup
-- `/` - dashboard
+- `/dashboard` - pilot dashboard
 - `/settings` - profile and preferences
 - `/resources` - support and learning resources
 - `/wearable-setup` - wearable setup demo

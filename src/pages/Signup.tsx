@@ -19,7 +19,7 @@ const Signup = () => {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
 
-  const allowedDomain = useMemo(() => "name@airlinecompany.com", []);
+  const allowedDomain = useMemo(() => "airlinecompany.com", []);
 
   const [emailCode, setEmailCode] = useState("");
   const [smsCode, setSmsCode] = useState("");
@@ -29,7 +29,7 @@ const Signup = () => {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("aeromind_logged_in");
     if (isLoggedIn === "true") {
-      navigate("/");
+      navigate("/dashboard");
       return;
     }
     const t = setTimeout(() => setMounted(true), 0);

@@ -37,7 +37,7 @@ const Onboarding = () => {
     // Check if already onboarded
     const isOnboarded = localStorage.getItem("aeromind_onboarded");
     if (isOnboarded === "true") {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [navigate]);
 
@@ -56,7 +56,7 @@ const Onboarding = () => {
       localStorage.setItem("aeromind_user", JSON.stringify({ ...prev, ...formData }));
       localStorage.setItem("aeromind_onboarded", "true");
       // Navigate directly to dashboard - wearable can be connected later
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 

@@ -36,8 +36,8 @@ export const Sidebar = ({ userName, wearableConnected, wellnessScore, profilePho
     {
       icon: Home,
       label: "Dashboard",
-      path: "/",
-      active: location.pathname === "/"
+      path: "/dashboard",
+      active: location.pathname === "/dashboard"
     },
     {
       icon: BookOpen,
