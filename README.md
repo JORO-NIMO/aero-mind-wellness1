@@ -1,6 +1,9 @@
 # Aero Mind Wellness
 
-Pilot wellness demo web app built with Vite + React + Tailwind. Includes demo authentication (login/sign-up with company email, worker ID, phone, DOB), onboarding, dashboard with mock wearable data, AI-powered insights (what‑if simulation), settings bound to the signed-in profile, and a resources page. All demo data is stored locally in the browser.
+Pilot wellness demo web app built with 
+Vite + React + Tailwind. Includes demo authentication (login/sign-up with company email, worker ID, phone, DOB), onboarding, 
+dashboard with mock wearable data, AI-powered insights (what‑if simulation), settings bound to the signed-in profile, and a resources page. 
+All demo data is stored locally in the browser.
 
 ## Quick start (Windows)
 
@@ -24,7 +27,7 @@ npm run dev
 ```
 
 Open the app in your browser at:
-http://localhost:5173
+http://localhost:5173 or any open ports
 
 (Vite default dev port is 5173; if your project uses a different port, follow the terminal output.)
 
@@ -95,4 +98,6 @@ localStorage.removeItem('aeromind_profile_photo');
 3. Open a pull request for review
 
 ## License
-Add your chosen license file (e.g., LICENSE) and update this section.
+Not yet licenced.
+This project is monitored in closed Aggreement of non disclosure with I (J Amanya & Birungi miriam)
+For The AVIATHON By AEROBUDDIES In 2025

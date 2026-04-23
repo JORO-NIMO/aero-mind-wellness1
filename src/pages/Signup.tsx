@@ -19,7 +19,7 @@ const Signup = () => {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
 
-  const allowedDomain = useMemo(() => "airlinecompany.com", []);
+  const allowedDomain = useMemo(() => "name@airlinecompany.com", []);
 
   const [emailCode, setEmailCode] = useState("");
   const [smsCode, setSmsCode] = useState("");
