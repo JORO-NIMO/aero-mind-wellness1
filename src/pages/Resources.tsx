@@ -33,12 +33,65 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BreathingExercise } from "@/components/BreathingExercise";
 
+type CrisisResource = {
+  id: number;
+  title: string;
+  description: string;
+  phone: string;
+  website?: string;
+  available?: string;
+  type?: string;
+  priority?: string;
+  country?: string;
+  flag?: string;
+};
+
+type SelfHelpTool = {
+  id: number;
+  title: string;
+  description: string;
+  type: "audio" | "interactive";
+  duration: string;
+  category: string;
+  rating: number;
+};
+
+type ProfessionalResource = {
+  id: number;
+  name: string;
+  specialty: string;
+  experience: string;
+  availability: string;
+  rating: number;
+  languages: string[];
+  photo: string | null;
+};
+
+type EducationalContent = {
+  id: number;
+  title: string;
+  type: "article" | "video" | "podcast";
+  readTime?: string;
+  duration?: string;
+  category: string;
+  featured: boolean;
+};
+
+type SupportGroup = {
+  id: number;
+  name: string;
+  members: number;
+  type: string;
+  nextMeeting: string;
+  frequency: string;
+};
+
 const MentalHealthResources = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTool, setSelectedTool] = useState<any>(null);
-  const [selectedProfessional, setSelectedProfessional] = useState<any>(null);
-  const [selectedContent, setSelectedContent] = useState<any>(null);
-  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [selectedTool, setSelectedTool] = useState<SelfHelpTool | null>(null);
+  const [selectedProfessional, setSelectedProfessional] = useState<ProfessionalResource | null>(null);
+  const [selectedContent, setSelectedContent] = useState<EducationalContent | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<SupportGroup | null>(null);
   const [isToolOpen, setIsToolOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -179,7 +232,7 @@ const MentalHealthResources = () => {
   const currentCountry = getCurrentCountryInfo();
 
   // Handler functions for button actions
-  const handleCrisisContact = (resource: any) => {
+  const handleCrisisContact = (resource: CrisisResource) => {
     if (resource.website) {
       // Open website in new tab
       window.open(`https://${resource.website}`, '_blank');
@@ -201,30 +254,30 @@ const MentalHealthResources = () => {
     }
   };
 
-  const handleSelfHelpTool = (tool: any) => {
+  const handleSelfHelpTool = (tool: SelfHelpTool) => {
     setSelectedTool(tool);
     setIsToolOpen(true);
   };
 
-  const handleProfessionalMessage = (professional: any) => {
+  const handleProfessionalMessage = (professional: ProfessionalResource) => {
     setSelectedProfessional(professional);
     setMessageText("");
     setIsMessageOpen(true);
   };
 
-  const handleProfessionalBooking = (professional: any) => {
+  const handleProfessionalBooking = (professional: ProfessionalResource) => {
     setSelectedProfessional(professional);
     setBookingDate("");
     setBookingTime("");
     setIsBookingOpen(true);
   };
 
-  const handleEducationalContent = (content: any) => {
+  const handleEducationalContent = (content: EducationalContent) => {
     setSelectedContent(content);
     setIsContentOpen(true);
   };
 
-  const handleJoinGroup = (group: any) => {
+  const handleJoinGroup = (group: SupportGroup) => {
     setSelectedGroup(group);
     setIsGroupOpen(true);
   };
@@ -434,7 +487,7 @@ const MentalHealthResources = () => {
     }
   };
 
-  const filteredResources = (resources: any[]) => {
+  const filteredResources = <T extends { title?: string; name?: string; description?: string; specialty?: string }>(resources: T[]) => {
     if (!searchQuery) return resources;
     return resources.filter(resource => 
       resource.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||

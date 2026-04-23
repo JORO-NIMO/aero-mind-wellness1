@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Plane, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type LoginUser = {
+  name?: string;
+  email?: string;
+};
+
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -27,7 +32,7 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const existing = localStorage.getItem("aeromind_user");
-    let user: any = existing ? JSON.parse(existing) : {};
+    let user: LoginUser = existing ? JSON.parse(existing) : {};
     user = { ...user, name, email };
     localStorage.setItem("aeromind_user", JSON.stringify(user));
     localStorage.setItem("aeromind_logged_in", "true");

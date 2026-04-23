@@ -31,7 +31,9 @@ export const AIInsights = ({ heartRate, sleepHours, score }: AIInsightsProps) =>
         const email = u?.email || "";
         const display = name || (email ? email.split("@")[0] : "Pilot");
         setWho(display);
-      } catch {}
+      } catch {
+        void 0;
+      }
     }
   }, []);
 
@@ -77,9 +79,8 @@ export const AIInsights = ({ heartRate, sleepHours, score }: AIInsightsProps) =>
     ],
   }), []);
 
-  const pick = (arr: string[], n: number) => arr[(n + nonce) % arr.length];
-
   const computed = useMemo(() => {
+    const pick = (arr: string[], n: number) => arr[(n + nonce) % arr.length];
     const items: { tip: string; why: string }[] = [];
     if (active.sleepHours < 6) items.push({ tip: pick(pool.sleepLow, 1), why: `Sleep ${active.sleepHours.toFixed(1)}h < 6h.` });
     if (active.heartRate > 85) items.push({ tip: pick(pool.hrHigh, 2), why: `HR ${Math.round(active.heartRate)}bpm > 85.` });

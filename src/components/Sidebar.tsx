@@ -219,7 +219,9 @@ export const Sidebar = ({ userName, wearableConnected, wellnessScore, profilePho
                     localStorage.removeItem("aeromind_logged_in");
                     localStorage.removeItem("aeromind_onboarded");
                     localStorage.removeItem("aeromind_profile_photo");
-                  } catch {}
+                  } catch {
+                    void 0;
+                  }
                   navigate("/login");
                   setIsOpen(false);
                 }}

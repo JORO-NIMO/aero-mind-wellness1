@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const callTimerRef = useRef<number | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
@@ -60,21 +61,24 @@ const Settings = () => {
   const handleMedicalContact = (type: 'call' | 'message' | 'video') => {
     // In a real app, this would initiate the appropriate communication method
     switch (type) {
-      case 'call':
+      case 'call': {
         alert('Initiating call to medical personnel...');
         break;
-      case 'message':
+      }
+      case 'message': {
         alert('Opening secure messaging with medical team...');
         break;
-      case 'video':
+      }
+      case 'video': {
         setIsVideoCallOpen(true);
         // Start call timer
         const timer = setInterval(() => {
           setCallDuration(prev => prev + 1);
         }, 1000);
         // Store timer for cleanup
-        (window as any).callTimer = timer;
+        callTimerRef.current = timer;
         break;
+      }
     }
   };
 
@@ -82,9 +86,9 @@ const Settings = () => {
     setIsVideoCallOpen(false);
     setCallDuration(0);
     // Clear timer
-    if ((window as any).callTimer) {
-      clearInterval((window as any).callTimer);
-      (window as any).callTimer = null;
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
     }
   };
 
@@ -140,7 +144,9 @@ const Settings = () => {
           phone: u.phone || "",
           workerId: u.workerId || "",
         });
-      } catch {}
+      } catch {
+        void 0;
+      }
     }
   }, [navigate]);
 
