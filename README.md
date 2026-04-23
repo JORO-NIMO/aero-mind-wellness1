@@ -1,72 +1,59 @@
-# Aero Mind Wellness
+# AeroMind Wellness
 
-Pilot wellness demo web app built with 
-Vite + React + Tailwind. Includes demo authentication (login/sign-up with company email, worker ID, phone, DOB), onboarding, 
-dashboard with mock wearable data, AI-powered insights (what‑if simulation), settings bound to the signed-in profile, and a resources page. 
-All demo data is stored locally in the browser.
+A modern pilot wellness demo web app built with Vite, React, TypeScript, Tailwind, and shadcn/ui.
+It includes demo authentication, onboarding, dashboard analytics, AI-style insights, wellness exercises,
+resources, and settings. Data is demo-only and stored in browser localStorage.
+
+## Key features
+- Dashboard: wellness score, wearable metrics (mock), mood check-in, insights, badges, and history
+- Breathing exercise: interactive inhale/hold/exhale flow with timers
+- Resources: crisis contacts, self-help tools, educational content, and support flows
+- Onboarding: guided setup with compliance and metrics preferences
+- Settings: profile, notifications, privacy, wearable connection controls
+- Wearable setup flow: connect or skip and continue to dashboard
 
 ## Quick start (Windows)
 
 Prerequisites
-- Node.js 18+ (recommended)
-- npm (bundled with Node)
+- Node.js 18+
+- npm
 
 Steps
 ```powershell
-# 1. Clone the repo
+# 1) Clone the repo
 git clone https://github.com/JORO-NIMO/aero-mind-wellness1.git
 
-# 2. Enter the project folder
+# 2) Enter the project folder
 cd aero-mind-wellness1
 
-# 3. Install dependencies
+# 3) Install dependencies
 npm install
 
-# 4. Start the dev server
+# 4) Start the dev server
 npm run dev
 ```
 
-Open the app in your browser at:
-http://localhost:5173 or any open ports
+Open:
+- http://localhost:5173
 
-(Vite default dev port is 5173; if your project uses a different port, follow the terminal output.)
-
-## Features (Demo mode)
-- **[Auth demo]**
-  - `Login` and `Signup` flows using localStorage. Signup collects company email, worker ID, phone (E.164), and DOB.
-  - Dual OTP verification is simulated by showing OTPs on screen.
-  - Allowed email domain defaults to `airlinecompany.com` (changeable).
-- **[Onboarding]**
-  - Stepper to collect name, airline, role, compliance authority, and metrics to track.
-- **[Dashboard]**
-  - Wellness score, mock wearable metrics, mood check‑in, history chart.
-  - AI Insights demo container with What‑if mode (sliders for HR/Sleep/Score), presets, and Regenerate.
-  - Gamification badges and demo controls to set healthy/stressed/critical states.
-- **[Settings]**
-  - Reads and updates name/email from `localStorage` profile created by login/signup.
-  - Age placeholder derived from DOB (if provided). Photo upload is in‑memory for demo.
-- **[Resources]**
-  - Curated mental health content.
-- **[Wearable]**
-  - Demo wearable context and connection UI.
+Note: Vite defaults to port 5173. Follow terminal output if another port is used.
 
 ## Routes
-- `/login` — demo login
-- `/signup` — demo sign‑up with OTPs (on‑screen)
-- `/onboarding` — guided setup (requires login)
-- `/` — dashboard (requires login + onboarding)
-- `/settings` — profile, privacy, devices
-- `/resources` — content/resources
-- `/wearable-setup` — wearable setup demo
-- `*` — not found
+- `/login` - demo login
+- `/signup` - demo sign-up with on-screen OTP simulation
+- `/onboarding` - guided setup
+- `/` - dashboard
+- `/settings` - profile and preferences
+- `/resources` - support and learning resources
+- `/wearable-setup` - wearable setup demo
 
 ## LocalStorage keys (demo)
-- `aeromind_user` — profile fields (name, email, phone, workerId, dob, verification flags)
-- `aeromind_logged_in` — "true" when logged in
-- `aeromind_onboarded` — "true" after onboarding
-- `aeromind_profile_photo` — optionally used for profile photo (not persisted by default in Settings)
+- `aeromind_user`
+- `aeromind_logged_in`
+- `aeromind_onboarded`
+- `aeromind_profile_photo`
 
-To reset the demo quickly, clear these keys in DevTools or run in console:
+Reset demo state in browser console:
 ```js
 localStorage.removeItem('aeromind_user');
 localStorage.removeItem('aeromind_logged_in');
@@ -74,30 +61,31 @@ localStorage.removeItem('aeromind_onboarded');
 localStorage.removeItem('aeromind_profile_photo');
 ```
 
-## Configuration
-- **Allowed email domain** for signup: update `allowedDomain` in `src/pages/Signup.tsx`.
-- This project is fully client‑side in demo mode; there is no backend.
+## Project structure (high level)
+- `src/pages` - route pages (dashboard, auth, onboarding, resources, settings)
+- `src/components` - feature components and shared UI
+- `src/contexts` - app state providers (wearable context)
+- `src/hooks` - reusable hooks
+- `public` - static assets
 
 ## Available scripts
-- npm run dev        — start dev server (hot reload)
-- npm run build      — production build
-- npm run preview    — serve built app locally
-- npm run lint       — run ESLint
+- `npm run dev` - start dev server
+- `npm run build` - production build
+- `npm run preview` - preview production build
+- `npm run lint` - run ESLint
 
 ## Tech stack
 - Vite (React + SWC)
 - React 18 + TypeScript
 - Tailwind CSS + shadcn/ui (Radix UI)
 - React Router v6
-- TanStack Query (for future data needs)
-- lucide-react (icons)
+- TanStack Query
+- lucide-react
 
 ## Contributing
-1. Create a feature branch: git checkout -b feat/your-feature
+1. Create a feature branch: `git checkout -b feat/your-feature`
 2. Commit changes with clear messages
-3. Open a pull request for review
+3. Open a pull request
 
 ## License
-Not yet licenced.
-This project is monitored in closed Aggreement of non disclosure with I (J Amanya & Birungi miriam)
-For The AVIATHON By AEROBUDDIES In 2025
+No formal license file has been added yet.
