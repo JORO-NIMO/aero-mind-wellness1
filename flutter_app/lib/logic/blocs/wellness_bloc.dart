@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/repositories/api_service.dart';
+import '../../data/repositories/wellness_repository.dart';
 
 // Events
 abstract class WellnessEvent {}
@@ -20,16 +20,16 @@ class WellnessError extends WellnessState {
 
 // BLoC
 class WellnessBloc extends Bloc<WellnessEvent, WellnessState> {
-  final ApiService apiService;
+  final WellnessRepository wellnessRepository;
 
-  WellnessBloc({required this.apiService}) : super(WellnessInitial()) {
+  WellnessBloc({required this.wellnessRepository}) : super(WellnessInitial()) {
     on<WellnessMetricsRequested>((event, emit) async {
       emit(WellnessLoading());
       try {
-        final data = await apiService.getMetrics();
+        final data = await wellnessRepository.getMetrics();
         emit(WellnessLoaded(data));
       } catch (e) {
-        emit(WellnessError('Failed to load wellness metrics.'));
+        emit(WellnessError('An error occurred while fetching metrics.'));
       }
     });
   }

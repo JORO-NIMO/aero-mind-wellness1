@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../logic/blocs/auth_bloc.dart';
 import '../../logic/blocs/wellness_bloc.dart';
 import '../widgets/mood_check_in.dart';
@@ -31,6 +32,15 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: const Color(0xFF2563EB),
         foregroundColor: Colors.white,
         actions: [
+          StreamBuilder<List<ConnectivityResult>>(
+            stream: Connectivity().onConnectivityChanged,
+            builder: (context, snapshot) {
+              final isOffline = snapshot.data?.contains(ConnectivityResult.none) ?? false;
+              return isOffline
+                ? const Padding(padding: EdgeInsets.only(right: 16), child: Icon(LucideIcons.wifiOff, color: Colors.orange, size: 18))
+                : const SizedBox.shrink();
+            },
+          ),
           IconButton(
             onPressed: () => context.read<WellnessBloc>().add(WellnessMetricsRequested()),
             icon: const Icon(LucideIcons.refreshCcw)
@@ -54,7 +64,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ListTile(leading: const Icon(LucideIcons.home), title: const Text('Dashboard'), onTap: () => Navigator.pop(context)),
                 ListTile(leading: const Icon(LucideIcons.bookOpen), title: const Text('Resources'), onTap: () { Navigator.pop(context); context.push('/resources'); }),
                 ListTile(leading: const Icon(LucideIcons.wind), title: const Text('Breathing'), onTap: () { Navigator.pop(context); context.push('/breathing'); }),
-            ListTile(leading: const Icon(LucideIcons.settings), title: const Text('Settings'), onTap: () { Navigator.pop(context); context.push('/settings'); }),
+                ListTile(leading: const Icon(LucideIcons.settings), title: const Text('Settings'), onTap: () { Navigator.pop(context); context.push('/settings'); }),
                 const Spacer(),
                 const Divider(),
                 ListTile(
@@ -71,7 +81,7 @@ class _DashboardPageState extends State<DashboardPage> {
       body: BlocBuilder<WellnessBloc, WellnessState>(
         builder: (context, state) {
           if (state is WellnessLoading) return const Center(child: CircularProgressIndicator());
-          if (state is WellnessError) return Center(child: Text(state.message));
+          if (state is WellnessError) return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Text(state.message), ElevatedButton(onPressed: () => context.read<WellnessBloc>().add(WellnessMetricsRequested()), child: const Text('Retry'))]));
           if (state is WellnessLoaded) {
             final data = state.data;
             return SingleChildScrollView(
@@ -161,6 +171,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildHistoryChart(List<dynamic> history) {
+    if (history.isEmpty) return const SizedBox.shrink();
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -177,7 +188,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 LineChartData(
                   gridData: const FlGridData(show: false),
                   titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (val, meta) => Text(history[val.toInt()]['date'], style: const TextStyle(fontSize: 10, color: Colors.grey)))),
+                    bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (val, meta) {
+                      if (val.toInt() >= history.length) return const SizedBox.shrink();
+                      return Text(history[val.toInt()]['date'], style: const TextStyle(fontSize: 10, color: Colors.grey));
+                    })),
                     leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -189,6 +203,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       isCurved: true,
                       color: const Color(0xFF2563EB),
                       barWidth: 3,
+                      isStrokeCapRound: true,
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(show: true, color: const Color(0xFF2563EB).withOpacity(0.1)),
                     ),
@@ -200,5 +215,15 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       ),
     );
+  }
+}
+
+class _StatusIndicator extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _StatusIndicator({required this.color, required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 4), Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey))]);
   }
 }

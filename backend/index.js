@@ -1,138 +1,157 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const fs = require('fs').promises;
-const path = require('path');
 const bcrypt = require('bcryptjs');
+const { Pool } = require('pg');
+const winston = require('winston');
+
+// Logger Configuration
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+    new winston.transports.Console({ format: winston.format.simple() })
+  ],
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = process.env.JWT_SECRET || 'aeromind-fallback-secret-for-demo-purposes';
-const DB_FILE = path.join(__dirname, 'db.json');
+const SECRET_KEY = process.env.JWT_SECRET;
 
-// Asynchronous DB initialization
+if (!SECRET_KEY) {
+  logger.error('CRITICAL: JWT_SECRET environment variable is not defined.');
+  process.exit(1);
+}
+
+// Database Connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
 async function initDB() {
+  const client = await pool.connect();
   try {
-    await fs.access(DB_FILE);
-  } catch {
-    await fs.writeFile(DB_FILE, JSON.stringify({ users: [], onboarding: {} }, null, 2));
+    logger.info('Initializing PostgreSQL tables...');
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        worker_id VARCHAR(50) NOT NULL,
+        name VARCHAR(255)
+      );
+      CREATE TABLE IF NOT EXISTS onboarding (
+        user_id INTEGER PRIMARY KEY REFERENCES users(id),
+        airline VARCHAR(255),
+        role VARCHAR(50),
+        compliance INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    logger.info('Database tables verified.');
+  } catch (err) {
+    logger.error('Database initialization failed:', err);
+  } finally {
+    client.release();
   }
 }
 
-const readDB = async () => JSON.parse(await fs.readFile(DB_FILE, 'utf8'));
-const writeDB = async (data) => await fs.writeFile(DB_FILE, JSON.stringify(data, null, 2));
-
 app.use(helmet());
 app.use(cors());
-app.use(bodyParser.json());
-app.use(morgan('dev'));
+app.use(express.json());
+app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
 // Auth middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Session required' });
+  if (!token) return res.status(401).json({ error: 'Auth token missing' });
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid or expired session' });
+    if (err) return res.status(403).json({ error: 'Invalid session' });
     req.user = user;
     next();
   });
 };
 
 // Routes
-app.get('/health', (req, res) => res.json({ status: 'healthy', version: '1.1.0' }));
+app.get('/health', (req, res) => res.json({ status: 'healthy', database: 'connected' }));
 
 app.post('/api/auth/signup', async (req, res) => {
+  const { email, password, workerId, name } = req.body;
   try {
-    const { email, password, workerId, name } = req.body;
-    if (!email || !password || !workerId) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    const db = await readDB();
-    if (db.users.find(u => u.email === email)) {
-      return res.status(400).json({ error: 'Email already registered' });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = { id: Date.now(), email, password: hashedPassword, workerId, name: name || 'Pilot' };
-
-    db.users.push(user);
-    await writeDB(db);
-
+    const result = await pool.query(
+      'INSERT INTO users (email, password, worker_id, name) VALUES ($1, $2, $3, $4) RETURNING id, email, name, worker_id',
+      [email, hashedPassword, workerId, name]
+    );
+    const user = result.rows[0];
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
-    const { password: _, ...safeUser } = user;
-    res.status(201).json({ token, user: safeUser });
-  } catch (e) {
-    res.status(500).json({ error: 'Internal server error during signup' });
+    res.status(201).json({ token, user });
+  } catch (err) {
+    logger.error('Signup error:', err);
+    res.status(400).json({ error: 'User registration failed (likely email already exists)' });
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-    const db = await readDB();
-    const user = db.users.find(u => u.email === email);
-
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
     const { password: _, ...safeUser } = user;
     res.json({ token, user: safeUser });
-  } catch (e) {
-    res.status(500).json({ error: 'Internal server error during login' });
+  } catch (err) {
+    logger.error('Login error:', err);
+    res.status(500).json({ error: 'Authentication service error' });
   }
 });
 
 app.post('/api/user/onboarding', authenticateToken, async (req, res) => {
+  const { airline, role, compliance } = req.body;
   try {
-    const db = await readDB();
-    db.onboarding[req.user.id] = req.body;
-    await writeDB(db);
+    await pool.query(
+      'INSERT INTO onboarding (user_id, airline, role, compliance) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id) DO UPDATE SET airline = $2, role = $3, compliance = $4',
+      [req.user.id, airline, role, compliance]
+    );
     res.json({ success: true });
-  } catch (e) {
+  } catch (err) {
+    logger.error('Onboarding error:', err);
     res.status(500).json({ error: 'Failed to save onboarding data' });
   }
 });
 
 app.get('/api/wellness/metrics', authenticateToken, (req, res) => {
-  const userId = req.user.id;
-  const score = 65 + (userId % 30);
-
+  // Deterministic metrics for demo
+  const score = 70 + (req.user.id % 25);
   res.json({
     score,
-    heartRate: score > 75 ? 65 + (userId % 5) : 85 + (userId % 10),
-    sleepHours: score > 75 ? 7.8 : 5.2,
-    steps: 7000 + (userId % 3000),
+    heartRate: 65 + (req.user.id % 10),
+    sleepHours: 7.5,
+    steps: 8200,
     history: [
-      { date: 'Mon', score: 72 }, { date: 'Tue', score: 68 }, { date: 'Wed', score: 75 },
-      { date: 'Thu', score: 82 }, { date: 'Fri', score: 78 }, { date: 'Sat', score: 85 },
-      { date: 'Sun', score: score },
+      { date: 'Mon', score: 75 }, { date: 'Tue', score: 72 }, { date: 'Wed', score: 80 },
+      { date: 'Thu', score: 68 }, { date: 'Fri', score: 85 }, { date: 'Sat', score: 82 },
+      { date: 'Sun', score: score }
     ],
-    insights: [
-      score > 80 ? "✨ Excellent wellness. Optimal performance state." : "⚠️ Fatigue risk detected. Consider a rest cycle.",
-      "🛌 Sleep hygiene: Maintain a consistent buffer before duty.",
-      "💓 Heart rate variability is stable within your baseline."
-    ]
+    insights: ["✨ Optimal condition for flight duty.", "🛌 Sleep cycle is within healthy range."]
   });
-});
-
-app.get('/api/resources/crisis', (req, res) => {
-  res.json([
-    { id: 1, title: 'Mental Health Uganda', phone: '0800 21 21 21', country: 'Uganda', description: '24/7 confidential counseling' },
-    { id: 2, title: 'StrongMinds Uganda', phone: '+256 800 200 600', country: 'Uganda', description: 'Mental health support' },
-    { id: 3, title: 'Befrienders Kenya', phone: '+254 722 178 177', country: 'Kenya', description: 'Emotional support' }
-  ]);
 });
 
 initDB().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Production API running on port ${PORT}`);
+    logger.info(`Production API started on port ${PORT}`);
   });
 });

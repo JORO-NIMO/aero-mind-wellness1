@@ -4,8 +4,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:aero_mind_wellness/data/repositories/api_service.dart';
 import 'package:aero_mind_wellness/data/repositories/auth_repository_impl.dart';
+import 'package:aero_mind_wellness/data/repositories/wellness_repository.dart';
 import 'package:aero_mind_wellness/logic/blocs/auth_bloc.dart';
 import 'package:aero_mind_wellness/logic/blocs/wellness_bloc.dart';
 import 'package:aero_mind_wellness/presentation/pages/signup_page.dart';
@@ -19,15 +21,21 @@ import 'package:aero_mind_wellness/presentation/pages/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive for Offline Support
+  await Hive.initFlutter();
+  await Hive.openBox('wellness_cache');
+
   final prefs = await SharedPreferences.getInstance();
   final apiService = ApiService();
   final authRepository = AuthRepositoryImpl(apiService: apiService, prefs: prefs);
+  final wellnessRepository = WellnessRepository(apiService: apiService);
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc(authRepository: authRepository)..add(AuthCheckRequested())),
-        BlocProvider(create: (context) => WellnessBloc(apiService: apiService)),
+        BlocProvider(create: (context) => WellnessBloc(wellnessRepository: wellnessRepository)),
       ],
       child: const AeroMindApp(),
     ),
