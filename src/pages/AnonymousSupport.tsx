@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +22,8 @@ const AnonymousSupport = () => {
   const [userName, setUserName] = useState("Pilot");
   const { toast } = useToast();
   const { isConnected: wearableConnected, metrics } = useWearable();
+
+  const MAX_CHARS = 2000;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -76,11 +79,13 @@ const AnonymousSupport = () => {
             </CardContent>
           </Card>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
+              <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="category" aria-describedby="category-hint">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="general">General Feedback</SelectItem>
                   <SelectItem value="fatigue">Fatigue Report</SelectItem>
@@ -88,17 +93,26 @@ const AnonymousSupport = () => {
                   <SelectItem value="safety">Safety Concern</SelectItem>
                 </SelectContent>
               </Select>
+              <p id="category-hint" className="text-xs text-muted-foreground">Select the area that best describes your report.</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Your Message</label>
+              <div className="flex justify-between items-end">
+                <Label htmlFor="message">Your Message</Label>
+                <span id="message-counter" className={`text-[10px] font-medium ${content.length > MAX_CHARS ? 'text-destructive' : 'text-muted-foreground'}`} aria-live="polite">
+                  {content.length}/{MAX_CHARS} characters
+                </span>
+              </div>
               <Textarea
+                id="message"
                 placeholder="Describe your situation or concern..."
                 className="min-h-[200px]"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
+                aria-describedby="message-hint message-counter"
               />
+              <p id="message-hint" className="text-xs text-muted-foreground">Provide as much detail as possible to help us understand and assist.</p>
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading || !content.trim()}>
