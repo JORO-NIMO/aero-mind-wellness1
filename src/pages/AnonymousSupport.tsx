@@ -24,6 +24,8 @@ const AnonymousSupport = () => {
   const { toast } = useToast();
   const { isConnected: wearableConnected, metrics } = useWearable();
 
+  const MAX_CHARS = 2000;
+
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -78,7 +80,7 @@ const AnonymousSupport = () => {
             </CardContent>
           </Card>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
@@ -90,6 +92,7 @@ const AnonymousSupport = () => {
                   <SelectItem value="safety">Safety Concern</SelectItem>
                 </SelectContent>
               </Select>
+              <p id="category-hint" className="text-xs text-muted-foreground">Select the area that best describes your report.</p>
             </div>
 
             <div className="space-y-2">
