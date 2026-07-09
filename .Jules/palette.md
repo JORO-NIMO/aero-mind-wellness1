@@ -1,3 +1,3 @@
-## 2026-07-08 - [Accessible Forms with Character Counters]
-**Learning:** Using 'aria-describedby' to link hint text and character counters to inputs significantly improves the experience for screen reader users. Ensuring that character counters are marked with 'aria-live="polite"' allows users to receive updates as they type.
-**Action:** Always link labels to inputs using 'htmlFor' and 'id', and use 'aria-describedby' for any supplementary information or real-time feedback like character counts.
+## 2025-05-14 - [Semantic Labels and Real-time Feedback]
+**Learning:** Using the `Label` component with `htmlFor` instead of raw `<label>` tags ensures consistency with the design system and improves accessibility. Adding character counters and `aria-describedby` hints to textareas provides immediate feedback and better context for screen reader users.
+**Action:** Always prefer `Label` from the UI library and ensure every input has a programmatic link to its label and any assistive text.
