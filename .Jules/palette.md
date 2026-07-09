@@ -1,3 +1,3 @@
-## 2025-05-15 - [Accessible Form Patterns & Character Counters]
-**Learning:** Linking labels to complex UI components (like Radix Select) requires explicit IDs on the trigger elements. Character counters for text areas should be linked via `aria-describedby` and use `aria-live="polite"` to ensure screen readers announce updates without interrupting the user's flow.
-**Action:** Always verify that Radix `SelectTrigger` or similar interactive components have `id` attributes that match the `htmlFor` of their corresponding `Label`. For limited text inputs, provide a real-time visual counter that also communicates status to assistive technology.
+## 2025-05-14 - [Semantic Labels and Real-time Feedback]
+**Learning:** Using the `Label` component with `htmlFor` instead of raw `<label>` tags ensures consistency with the design system and improves accessibility. Adding character counters and `aria-describedby` hints to textareas provides immediate feedback and better context for screen reader users.
+**Action:** Always prefer `Label` from the UI library and ensure every input has a programmatic link to its label and any assistive text.
