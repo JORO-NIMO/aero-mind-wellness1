@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -78,9 +79,9 @@ const AnonymousSupport = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
+              <Label htmlFor="category-select">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="category-select"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="general">General Feedback</SelectItem>
                   <SelectItem value="fatigue">Fatigue Report</SelectItem>
@@ -91,13 +92,25 @@ const AnonymousSupport = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Your Message</label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="message-content">Your Message</Label>
+                <span
+                  id="char-count"
+                  className={`text-xs ${content.length > 1900 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
+                  aria-live="polite"
+                >
+                  {content.length}/2000
+                </span>
+              </div>
               <Textarea
+                id="message-content"
                 placeholder="Describe your situation or concern..."
                 className="min-h-[200px]"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => setContent(e.target.value.slice(0, 2000))}
                 required
+                maxLength={2000}
+                aria-describedby="char-count"
               />
             </div>
 
