@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sidebar } from "@/components/Sidebar";
@@ -78,9 +79,9 @@ const AnonymousSupport = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
+              <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id="category"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="general">General Feedback</SelectItem>
                   <SelectItem value="fatigue">Fatigue Report</SelectItem>
@@ -91,14 +92,22 @@ const AnonymousSupport = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Your Message</label>
+              <Label htmlFor="message">Your Message</Label>
+              <p id="message-hint" className="text-sm text-muted-foreground">
+                Please provide as much detail as possible to help us understand your concern.
+              </p>
               <Textarea
+                id="message"
                 placeholder="Describe your situation or concern..."
                 className="min-h-[200px]"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
+                aria-describedby="message-hint"
               />
+              <div className="text-xs text-muted-foreground text-right">
+                {content.length} characters
+              </div>
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading || !content.trim()}>
