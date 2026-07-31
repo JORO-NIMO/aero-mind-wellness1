@@ -21,4 +21,22 @@ class CacheService {
     final data = box.get('latest_metrics');
     return data != null ? Map<String, dynamic>.from(data) : null;
   }
+
+  Future<void> queueOfflineSync(Map<String, dynamic> data) async {
+    final box = await Hive.openBox('app_cache');
+    final List<dynamic> queue = box.get('offline_sync_queue', defaultValue: []);
+    queue.add(data);
+    await box.put('offline_sync_queue', queue);
+  }
+
+  Future<List<Map<String, dynamic>>> getQueuedSyncs() async {
+    final box = await Hive.openBox('app_cache');
+    final List<dynamic> queue = box.get('offline_sync_queue', defaultValue: []);
+    return queue.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  Future<void> clearOfflineSyncQueue() async {
+    final box = await Hive.openBox('app_cache');
+    await box.delete('offline_sync_queue');
+  }
 }
