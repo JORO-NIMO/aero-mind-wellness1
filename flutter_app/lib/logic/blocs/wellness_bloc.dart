@@ -82,9 +82,9 @@ class WellnessBloc extends Bloc<WellnessEvent, WellnessState> {
         if (queued.isNotEmpty) {
           for (var item in queued) {
             await apiService.syncWearableData(
-              heartRate: item['heartRate'] as int,
-              sleepHours: item['sleepHours'] as double,
-              steps: item['steps'] as int,
+              heartRate: (item['heartRate'] as num).toInt(),
+              sleepHours: (item['sleepHours'] as num).toDouble(),
+              steps: (item['steps'] as num).toInt(),
             );
           }
           await cacheService.clearOfflineSyncQueue();

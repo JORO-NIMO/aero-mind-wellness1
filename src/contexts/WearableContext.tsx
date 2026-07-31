@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 
 interface WearableContextType {
@@ -22,50 +22,7 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
   const [loadingMetrics, setLoadingMetrics] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const savedStatus = localStorage.getItem("aeromind_wearable_connected");
-    setIsConnected(savedStatus === "true");
-    fetchLatestMetrics();
-
-    // Listen to network status online event to drain offline sync queue
-    const handleOnline = () => {
-      console.log("Device is back online. Attemping to drain offline sync queue...");
-      drainOfflineQueue();
-    };
-
-    window.addEventListener("online", handleOnline);
-    return () => window.removeEventListener("online", handleOnline);
-  }, []);
-
-  const drainOfflineQueue = async () => {
-    try {
-      const queuedData = localStorage.getItem("aeromind_offline_sync_queue");
-      if (queuedData) {
-        const items = JSON.parse(queuedData);
-        if (Array.isArray(items) && items.length > 0) {
-          console.log(`Draining ${items.length} queued metrics...`);
-          const remainingItems = [];
-          for (const data of items) {
-            try {
-              await syncData(data, true);
-            } catch (err) {
-              console.error("Individual offline sync item failed. Retaining in queue:", err);
-              remainingItems.push(data);
-            }
-          }
-          if (remainingItems.length > 0) {
-            localStorage.setItem("aeromind_offline_sync_queue", JSON.stringify(remainingItems));
-          } else {
-            localStorage.removeItem("aeromind_offline_sync_queue");
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Failed to drain offline metrics sync queue:", e);
-    }
-  };
-
-  const fetchLatestMetrics = async () => {
+  const fetchLatestMetrics = useCallback(async () => {
     setLoadingMetrics(true);
     setError(null);
     try {
@@ -106,9 +63,9 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoadingMetrics(false);
     }
-  };
+  }, []);
 
-  const syncData = async (data: { heartRate: number, sleepHours: number, steps: number }, isRetry = false) => {
+  const syncData = useCallback(async (data: { heartRate: number, sleepHours: number, steps: number }, isRetry = false) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -150,7 +107,51 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
     } catch (e: any) {
       console.error("Sync failed:", e.message);
     }
-  };
+  }, [fetchLatestMetrics]);
+
+  const drainOfflineQueue = useCallback(async () => {
+    try {
+      const queuedData = localStorage.getItem("aeromind_offline_sync_queue");
+      if (queuedData) {
+        const items = JSON.parse(queuedData);
+        if (Array.isArray(items) && items.length > 0) {
+          console.log(`Draining ${items.length} queued metrics...`);
+          const remainingItems = [];
+          for (const data of items) {
+            try {
+              await syncData(data, true);
+            } catch (err) {
+              console.error("Individual offline sync item failed. Retaining in queue:", err);
+              remainingItems.push(data);
+            }
+          }
+          if (remainingItems.length > 0) {
+            localStorage.setItem("aeromind_offline_sync_queue", JSON.stringify(remainingItems));
+          } else {
+            localStorage.removeItem("aeromind_offline_sync_queue");
+          }
+          fetchLatestMetrics();
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain offline metrics sync queue:", e);
+    }
+  }, [syncData, fetchLatestMetrics]);
+
+  useEffect(() => {
+    const savedStatus = localStorage.getItem("aeromind_wearable_connected");
+    setIsConnected(savedStatus === "true");
+    fetchLatestMetrics();
+
+    // Listen to network status online event to drain offline sync queue
+    const handleOnline = () => {
+      console.log("Device is back online. Attemping to drain offline sync queue...");
+      drainOfflineQueue();
+    };
+
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [drainOfflineQueue, fetchLatestMetrics]);
 
   const connectWearable = () => {
     setIsConnecting(true);
