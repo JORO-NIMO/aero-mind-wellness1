@@ -28,11 +28,29 @@ import {
   Cell
 } from "recharts";
 
+interface AnonymousMessage {
+  id: number;
+  content: string;
+  category: string;
+  created_at: string;
+}
+
+interface DistributionStat {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface FleetStats {
+  distribution: DistributionStat[];
+  totalMetrics: number;
+}
+
 const AdminReports = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [messages, setMessages] = useState<AnonymousMessage[]>([]);
+  const [stats, setStats] = useState<FleetStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -60,7 +78,7 @@ const AdminReports = () => {
     };
 
     checkAdmin();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -122,7 +140,7 @@ const AdminReports = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={stats.distribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                          {stats.distribution.map((entry: any, index: number) => <Cell key={index} fill={entry.color} />)}
+                          {stats.distribution.map((entry: DistributionStat, index: number) => <Cell key={index} fill={entry.color} />)}
                         </Pie>
                         <Tooltip />
                       </PieChart>
