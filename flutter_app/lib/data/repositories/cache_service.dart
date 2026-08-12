@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/wearable_model.dart';
 
 class CacheService {
   static const String metricsBoxName = 'wellness_metrics';

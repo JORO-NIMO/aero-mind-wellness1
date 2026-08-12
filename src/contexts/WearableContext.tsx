@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 
+import { WearableMetrics, WearableMetricsHistory } from '@/types/wearable';
+
 interface WearableContextType {
   isConnected: boolean;
   isConnecting: boolean;
   connectWearable: () => void;
   disconnectWearable: () => void;
   setConnecting: (connecting: boolean) => void;
-  metrics: any;
+  metrics: WearableMetrics | null;
   loadingMetrics: boolean;
   syncData: (data: { heartRate: number, sleepHours: number, steps: number }) => Promise<void>;
   error: string | null;
@@ -18,7 +20,7 @@ const WearableContext = createContext<WearableContextType | undefined>(undefined
 export const WearableProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<WearableMetrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,8 +60,8 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
           ]
         });
       }
-    } catch (e: any) {
-      setError(e.message || "Failed to fetch metrics.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to fetch metrics.");
     } finally {
       setLoadingMetrics(false);
     }
@@ -79,12 +81,13 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
 
         // Update local metrics state for offline UX
         const score = (data.heartRate < 85 && data.sleepHours > 6.5) ? 88 : 55;
-        setMetrics((prev: any) => ({
-          ...(prev || { history: [], insights: [] }),
+        setMetrics((prev: WearableMetrics | null) => ({
           score,
           heartRate: data.heartRate,
           sleepHours: data.sleepHours,
           steps: data.steps,
+          history: prev?.history || [],
+          insights: prev?.insights || [],
         }));
         return;
       }
@@ -104,8 +107,8 @@ export const WearableProvider = ({ children }: { children: ReactNode }) => {
       if (!isRetry) {
         fetchLatestMetrics();
       }
-    } catch (e: any) {
-      console.error("Sync failed:", e.message);
+    } catch (e: unknown) {
+      console.error("Sync failed:", e instanceof Error ? e.message : "Unknown error");
     }
   }, [fetchLatestMetrics]);
 
