@@ -116,56 +116,60 @@ class _DashboardPageState extends State<DashboardPage> {
             Expanded(
               child: BlocBuilder<WellnessBloc, WellnessState>(
                 builder: (context, state) {
-                if (state is WellnessLoading) return const Center(child: CircularProgressIndicator());
-                if (state is WellnessError) return Center(child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.alertCircle, size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(state.message, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      ElevatedButton(onPressed: () => context.read<WellnessBloc>().add(WellnessMetricsRequested()), child: const Text('Retry'))
-                    ],
-                  ),
-                ));
-                if (state is WellnessLoaded) {
-                  final data = state.data;
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        _buildWellnessScore(context, data['score']),
-                        const SizedBox(height: 16),
-                        _buildActionRow(data),
-                        const SizedBox(height: 16),
-                        if (_activeAlerts.isNotEmpty) ...[
-                          _buildActiveAlertsList(),
+                  if (state is WellnessLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state is WellnessError) {
+                    return Center(child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(LucideIcons.alertCircle, size: 48, color: Colors.red),
                           const SizedBox(height: 16),
+                          Text(state.message, textAlign: TextAlign.center),
+                          const SizedBox(height: 16),
+                          ElevatedButton(onPressed: () => context.read<WellnessBloc>().add(WellnessMetricsRequested()), child: const Text('Retry'))
                         ],
-                        MoodCheckIn(onMoodSubmit: (mood) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mood recorded: $mood')));
-                        }),
-                        const SizedBox(height: 16),
-                        _buildWearableGrid(data),
-                        const SizedBox(height: 16),
-                        if (data['insights'] != null) AIInsightsWidget(insights: data['insights']),
-                        const SizedBox(height: 16),
-                        if (data['history'] != null && (data['history'] as List).isNotEmpty) _buildHistoryChart(data['history']),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                      ),
+                    ));
+                  }
+                  if (state is WellnessLoaded) {
+                    final data = state.data;
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          _buildWellnessScore(context, data['score']),
+                          const SizedBox(height: 16),
+                          _buildActionRow(data),
+                          const SizedBox(height: 16),
+                          if (_activeAlerts.isNotEmpty) ...[
+                            _buildActiveAlertsList(),
+                            const SizedBox(height: 16),
+                          ],
+                          MoodCheckIn(onMoodSubmit: (mood) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Mood recorded: $mood')));
+                          }),
+                          const SizedBox(height: 16),
+                          _buildWearableGrid(data),
+                          const SizedBox(height: 16),
+                          if (data['insights'] != null) AIInsightsWidget(insights: data['insights']),
+                          const SizedBox(height: 16),
+                          if (data['history'] != null && (data['history'] as List).isNotEmpty) _buildHistoryChart(data['history']),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildActionRow(Map<String, dynamic> data) {
     return Row(
@@ -286,7 +290,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       color: const Color(0xFF2563EB),
                       barWidth: 3,
                       dotData: const FlDotData(show: true),
-                      belowBarData: BarAreaData(show: true, color: const Color(0xFF2563EB).withOpacity(0.1)),
+                      belowBarData: BarAreaData(show: true, color: const Color(0xFF2563EB).withValues(alpha: 0.1)),
                     ),
                   ],
                 ),
